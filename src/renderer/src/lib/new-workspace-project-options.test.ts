@@ -108,6 +108,49 @@ describe('buildNewWorkspaceProjectOptions', () => {
     expect(options.map((option) => option.id)).toEqual(['github:stablyai/orca'])
   })
 
+  it('shows configured directories when project names are duplicated', () => {
+    const options = buildNewWorkspaceProjectOptions({
+      projects: [
+        project({
+          id: 'project:merchant-a',
+          displayName: 'merchant',
+          providerIdentity: undefined
+        }),
+        project({
+          id: 'project:merchant-b',
+          displayName: 'merchant',
+          providerIdentity: undefined
+        })
+      ],
+      projectHostSetups: [
+        setup({
+          id: 'merchant-a-setup',
+          projectId: 'project:merchant-a',
+          repoId: 'merchant-a-repo',
+          path: '/workspace/storefront/merchant'
+        }),
+        setup({
+          id: 'merchant-b-setup',
+          projectId: 'project:merchant-b',
+          repoId: 'merchant-b-repo',
+          path: '/workspace/admin/merchant'
+        })
+      ],
+      eligibleRepos: [repo('merchant-a-repo'), repo('merchant-b-repo')]
+    })
+
+    expect(options).toEqual([
+      expect.objectContaining({
+        id: 'project:merchant-b',
+        detail: '/workspace/admin/merchant'
+      }),
+      expect.objectContaining({
+        id: 'project:merchant-a',
+        detail: '/workspace/storefront/merchant'
+      })
+    ])
+  })
+
   it('filters project options by display name and detail', () => {
     const options: NewWorkspaceProjectOption[] = [
       {
